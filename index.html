@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>인생네컷 포토부스</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="camera-panel">
+        <h1>📸 인생네컷 포토부스</h1>
+        <p class="subtitle">카메라를 켜고 4장의 사진을 순서대로 촬영해보세요.</p>
+
+        <div class="camera-frame">
+          <video id="preview" autoplay playsinline muted></video>
+          <div id="countdown" class="countdown hidden">3</div>
+        </div>
+
+        <div class="controls">
+          <button id="startCameraBtn" class="primary">카메라 시작</button>
+          <button id="startSessionBtn" disabled>4컷 촬영 시작</button>
+          <button id="retakeBtn" disabled>다시 찍기</button>
+          <button id="downloadBtn" disabled>결과 저장</button>
+        </div>
+
+        <p id="status" class="status">카메라 시작 버튼을 눌러 준비해주세요.</p>
+      </section>
+
+      <section class="strip-panel">
+        <h2>미리보기</h2>
+        <div id="photoStrip" class="photo-strip">
+          <div class="brand">PHOTO BOOTH</div>
+          <div class="slot" data-index="0">1</div>
+          <div class="slot" data-index="1">2</div>
+          <div class="slot" data-index="2">3</div>
+          <div class="slot" data-index="3">4</div>
+          <div class="stamp">2026</div>
+        </div>
+      </section>
+    </main>
+
+    <canvas id="captureCanvas" class="hidden"></canvas>
+    <script src="script.js"></script>
+  </body>
+</html>
