@@ -1,0 +1,118 @@
+:root {
+  --bg: #0d0d0f;
+  --text: #f2f2f2;
+  --muted: #a4a4a4;
+  --green: #166534;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  background: radial-gradient(circle at top, #1a1a22 0, var(--bg) 60%);
+  color: var(--text);
+  min-height: 100svh;
+}
+
+.app {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 0.9rem;
+}
+
+.top h1 { margin: 0; font-size: 1.3rem; }
+.subtitle { margin: 0.35rem 0 0.75rem; color: var(--muted); font-size: 0.92rem; }
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.68rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--green);
+}
+
+button:disabled { opacity: 0.45; }
+.status { margin: 0.68rem 0; color: var(--muted); min-height: 1.25rem; font-size: 0.88rem; }
+
+.film-board-wrap { position: relative; }
+
+.countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 900;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 12px;
+}
+
+.film-board {
+  background: #000;
+  border-radius: 12px;
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.frame-slot {
+  position: relative;
+  aspect-ratio: 3/4;
+  background: #f1f1f1;
+  border: 10px solid #000;
+  color: #9f9f9f;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.frame-slot::before,
+.frame-slot::after {
+  position: absolute;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  color: #d7b0a3;
+  top: 6px;
+  bottom: 6px;
+  content: "KODAK PORTRA 400";
+}
+
+.frame-slot::before { left: -8px; }
+.frame-slot::after { right: -8px; transform: rotate(180deg); }
+
+.frame-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
+}
+
+.hidden,
+.hidden-video { display: none !important; }
+
+@media (max-width: 430px) {
+  .app { padding: 0.62rem; }
+  .top h1 { font-size: 1.03rem; }
+  .subtitle { font-size: 0.76rem; margin-bottom: 0.5rem; }
+  .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  button { font-size: 0.77rem; padding: 0.56rem 0.45rem; }
+  .status { font-size: 0.73rem; margin: 0.48rem 0; }
+  .film-board { gap: 0.45rem; padding: 0.5rem; }
+  .frame-slot { border-width: 7px; }
+  .frame-slot::before,
+  .frame-slot::after { font-size: 0.4rem; }
+}
