@@ -1,18 +1,29 @@
 # photo-booth
 
-인생네컷 스타일의 4컷 포토부스 웹앱입니다.
+A 9-shot black-and-white **Film Photo Booth** web app with your film-frame style.
 
-## 실행 방법
+## Behavior
 
-정적 파일이라서 간단히 서버를 띄워 실행할 수 있습니다.
+- Photos are placed directly into the 9 frame slots.
+- Total of 9 shots are captured in sequence.
+- All shots are black-and-white.
+- Buttons use a solid dark-green style.
+- **Undo Last Shot** removes only the latest shot (9th -> 8th -> 7th...).
+
+## Run
 
 ```bash
 python3 -m http.server 4173
 ```
 
-브라우저에서 `http://localhost:4173` 접속 후,
+Open `http://localhost:4173` and use:
 
-1. **카메라 시작** 버튼 클릭
-2. **4컷 촬영 시작** 버튼 클릭
-3. 카운트다운 후 자동으로 4장 촬영
-4. **결과 저장**으로 포토스트립 JPG 다운로드
+1. **Start Camera**
+2. **Start 9 Shots**
+3. **Undo Last Shot** if needed
+4. **Save Result**
+
+## iPhone save note
+
+- Full automatic save to Photos app is restricted by browser policy.
+- If share sheet appears, choose **Save Image**.
