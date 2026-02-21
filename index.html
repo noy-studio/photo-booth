@@ -20,9 +20,11 @@
         <button id="downloadBtn" disabled>Save Result</button>
       </section>
 
-
       <section class="film-board-wrap">
-        <div id="countdown" class="countdown hidden">3</div>
+        <div id="countdown" class="countdown hidden">
+          <div id="countdownNumber" class="countdown-number">3</div>
+          <button id="pauseBtn" class="countdown-pause" disabled>Pause</button>
+        </div>
         <div id="filmBoard" class="film-board">
           <div class="frame-slot" data-index="0">1</div>
           <div class="frame-slot" data-index="1">2</div>
@@ -35,6 +37,8 @@
           <div class="frame-slot" data-index="8">9</div>
         </div>
       </section>
+
+      <p id="status" class="status" aria-live="polite"></p>
 
       <video id="preview" autoplay playsinline muted class="hidden-video"></video>
       <canvas id="captureCanvas" class="hidden"></canvas>

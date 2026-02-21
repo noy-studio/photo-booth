@@ -1,8 +1,10 @@
 const preview = document.getElementById("preview");
 const countdownEl = document.getElementById("countdown");
+const countdownNumberEl = document.getElementById("countdownNumber");
 const statusEl = document.getElementById("status");
 const startCameraBtn = document.getElementById("startCameraBtn");
 const startSessionBtn = document.getElementById("startSessionBtn");
+const pauseBtn = document.getElementById("pauseBtn");
 const retakeBtn = document.getElementById("retakeBtn");
 const downloadBtn = document.getElementById("downloadBtn");
 const boardEl = document.getElementById("filmBoard");
@@ -11,6 +13,7 @@ const canvas = document.getElementById("captureCanvas");
 let stream;
 let capturedImages = [];
 let isShooting = false;
+let isPaused = false;
 
 const SLOT_COUNT = 9;
 
@@ -23,27 +26,11 @@ const setStatus = (message) => {
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function startCamera() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 1080 }, height: { ideal: 1440 } },
-      audio: false,
-    });
-
-    preview.srcObject = stream;
-    startCameraBtn.disabled = true;
-    startSessionBtn.disabled = false;
-    retakeBtn.disabled = capturedImages.length === 0;
-    setStatus("Camera is ready! Press Start 9 Shots.");
-  } catch (error) {
-    setStatus("Camera access failed. Please check browser permissions.");
-    console.error(error);
-  }
-}
-
 function refreshButtons() {
   retakeBtn.disabled = isShooting || capturedImages.length === 0;
   downloadBtn.disabled = capturedImages.length !== SLOT_COUNT;
+  pauseBtn.disabled = !isShooting || countdownEl.classList.contains("hidden");
+  pauseBtn.textContent = isPaused ? "Resume" : "Pause";
 }
 
 function updateSlot(index, dataUrl) {
@@ -59,6 +46,19 @@ function updateSlot(index, dataUrl) {
   img.src = dataUrl;
   img.alt = `${index + 1} shot`;
   slot.append(img);
+}
+
+function showLivePreview(index) {
+  const slot = boardEl.querySelector(`.frame-slot[data-index="${index}"]`);
+  slot.innerHTML = "";
+
+  const live = document.createElement("video");
+  live.className = "live-preview";
+  live.autoplay = true;
+  live.muted = true;
+  live.playsInline = true;
+  live.srcObject = stream;
+  slot.append(live);
 }
 
 function captureCurrentFrame() {
@@ -77,12 +77,37 @@ function captureCurrentFrame() {
   return canvas.toDataURL("image/jpeg", 0.95);
 }
 
+async function waitIfPaused() {
+  while (isPaused) {
+    setStatus("Paused. Press Resume to continue.");
+    await wait(200);
+  }
+}
+
 function resetBoard() {
   capturedImages = [];
   boardEl.querySelectorAll(".frame-slot").forEach((slot, index) => {
     slot.innerHTML = String(index + 1);
   });
   refreshButtons();
+}
+
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 1080 }, height: { ideal: 1440 } },
+      audio: false,
+    });
+
+    preview.srcObject = stream;
+    startCameraBtn.disabled = true;
+    startSessionBtn.disabled = false;
+    setStatus("Camera is ready! Press Start 9 Shots.");
+    refreshButtons();
+  } catch (error) {
+    setStatus("Camera access failed. Please check browser permissions.");
+    console.error(error);
+  }
 }
 
 function undoLastShot() {
@@ -94,8 +119,17 @@ function undoLastShot() {
   capturedImages.pop();
   updateSlot(removedIndex, null);
   setStatus(`Shot ${removedIndex + 1} removed. You can continue shooting.`);
-  refreshButtons();
   startSessionBtn.disabled = !stream;
+  refreshButtons();
+}
+
+function togglePause() {
+  if (!isShooting || countdownEl.classList.contains("hidden")) {
+    return;
+  }
+  isPaused = !isPaused;
+  setStatus(isPaused ? "Paused. Press Resume to continue." : "Resumed.");
+  refreshButtons();
 }
 
 async function runNineCutSession() {
@@ -104,19 +138,27 @@ async function runNineCutSession() {
   }
 
   isShooting = true;
+  isPaused = false;
   startSessionBtn.disabled = true;
   refreshButtons();
 
   for (let i = capturedImages.length; i < SLOT_COUNT; i += 1) {
+    showLivePreview(i);
     setStatus(`${i + 1} / 9 get ready...`);
 
+    countdownEl.classList.remove("hidden");
+    refreshButtons();
+
     for (let sec = 3; sec > 0; sec -= 1) {
-      countdownEl.textContent = sec;
-      countdownEl.classList.remove("hidden");
+      await waitIfPaused();
+      countdownNumberEl.textContent = sec;
       await wait(1000);
     }
 
     countdownEl.classList.add("hidden");
+    refreshButtons();
+    await waitIfPaused();
+
     const shot = captureCurrentFrame();
     capturedImages[i] = shot;
     updateSlot(i, shot);
@@ -124,9 +166,10 @@ async function runNineCutSession() {
     await wait(250);
   }
 
-  setStatus("All 9 shots captured! Press Save Result.");
   isShooting = false;
+  isPaused = false;
   startSessionBtn.disabled = false;
+  setStatus("All 9 shots captured! Press Save Result.");
   refreshButtons();
 }
 
@@ -218,7 +261,9 @@ async function downloadResult() {
 }
 
 resetBoard();
+setStatus("Please press Start Camera to get ready.");
 startCameraBtn.addEventListener("click", startCamera);
 startSessionBtn.addEventListener("click", runNineCutSession);
+pauseBtn.addEventListener("click", togglePause);
 retakeBtn.addEventListener("click", undoLastShot);
 downloadBtn.addEventListener("click", downloadResult);
