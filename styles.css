@@ -115,7 +115,7 @@ button:disabled { opacity: 0.45; }
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.6);
   top: 7px;
   bottom: 7px;
-  content: "KODAK PORTRA 400";
+  content: "MONO FILM 2603";
   pointer-events: none;
 }
 

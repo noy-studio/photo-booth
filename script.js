@@ -57,6 +57,33 @@ function drawImageCover(ctx, image, x, y, targetW, targetH) {
   ctx.drawImage(image, drawX, drawY, drawW, drawH);
 }
 
+function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder) {
+  const label = "MONO FILM 2603";
+  ctx.save();
+  ctx.fillStyle = "#d4bb7d";
+  ctx.font = "700 24px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const leftX = x + frameBorder * 0.5;
+  const rightX = x + slotW - frameBorder * 0.5;
+  const centerY = y + slotH * 0.5;
+
+  ctx.save();
+  ctx.translate(leftX, centerY);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(label, 0, 0);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(rightX, centerY);
+  ctx.rotate(Math.PI / 2);
+  ctx.fillText(label, 0, 0);
+  ctx.restore();
+
+  ctx.restore();
+}
+
 function refreshButtons() {
   retakeBtn.disabled = isShooting || capturedImages.length === 0;
   downloadBtn.disabled = capturedImages.length !== SLOT_COUNT;
@@ -218,6 +245,8 @@ function buildNineCutBlob() {
     const gap = 24;
     const slotW = Math.floor((width - margin * 2 - gap * 2) / 3);
     const slotH = Math.floor((slotW * 4) / 3);
+    const frameBorder = 10;
+    const innerGap = 10;
     const height = margin * 2 + slotH * 3 + gap * 2;
 
     out.width = width;
@@ -247,13 +276,14 @@ function buildNineCutBlob() {
         ctx.fillRect(x, y, slotW, slotH);
         ctx.save();
         ctx.beginPath();
-        ctx.rect(x + 10, y + 10, slotW - 20, slotH - 20);
+        ctx.rect(x + innerGap, y + innerGap, slotW - innerGap * 2, slotH - innerGap * 2);
         ctx.clip();
-        drawImageCover(ctx, image, x + 10, y + 10, slotW - 20, slotH - 20);
+        drawImageCover(ctx, image, x + innerGap, y + innerGap, slotW - innerGap * 2, slotH - innerGap * 2);
         ctx.restore();
         ctx.strokeStyle = "#000";
-        ctx.lineWidth = 8;
-        ctx.strokeRect(x + 2, y + 2, slotW - 4, slotH - 4);
+        ctx.lineWidth = frameBorder;
+        ctx.strokeRect(x + frameBorder * 0.5, y + frameBorder * 0.5, slotW - frameBorder, slotH - frameBorder);
+        drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder);
       });
 
       out.toBlob((blob) => resolve(blob), "image/jpeg", 0.95);
