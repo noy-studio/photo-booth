@@ -15,7 +15,7 @@ let capturedImages = [];
 let isShooting = false;
 let isPaused = false;
 
-const SLOT_COUNT = 9;
+const SLOT_COUNT = 8;
 
 const setStatus = (message) => {
   if (!statusEl) {
@@ -61,7 +61,8 @@ function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder) {
   const label = "MONO FILM 2603";
   ctx.save();
   ctx.fillStyle = "#d4bb7d";
-  ctx.font = "700 24px sans-serif";
+  const fontSize = Math.max(12, Math.round(slotW * 0.03));
+  ctx.font = `700 ${fontSize}px sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -161,7 +162,7 @@ async function startCamera() {
     preview.srcObject = stream;
     startCameraBtn.disabled = true;
     startSessionBtn.disabled = false;
-    setStatus("Camera is ready! Press Start 9 Shots.");
+    setStatus("Camera is ready! Press Start 8 Shots.");
     refreshButtons();
   } catch (error) {
     setStatus("Camera access failed. Please check browser permissions.");
@@ -203,7 +204,7 @@ async function runNineCutSession() {
 
   for (let i = capturedImages.length; i < SLOT_COUNT; i += 1) {
     showLivePreview(i);
-    setStatus(`${i + 1} / 9 get ready...`);
+    setStatus(`${i + 1} / ${SLOT_COUNT} get ready...`);
 
     countdownEl.classList.remove("hidden");
     refreshButtons();
@@ -221,14 +222,14 @@ async function runNineCutSession() {
     const shot = captureCurrentFrame();
     capturedImages[i] = shot;
     updateSlot(i, shot);
-    setStatus(`${i + 1} / 9 captured`);
+    setStatus(`${i + 1} / ${SLOT_COUNT} captured`);
     await wait(250);
   }
 
   isShooting = false;
   isPaused = false;
   startSessionBtn.disabled = false;
-  setStatus("All 9 shots captured! Press Save Result.");
+  setStatus("All 8 shots captured! Press Save Result.");
   refreshButtons();
 }
 
@@ -240,14 +241,16 @@ function buildNineCutBlob() {
     }
 
     const out = document.createElement("canvas");
+    const cols = 3;
+    const rows = Math.ceil(SLOT_COUNT / cols);
     const width = 1200;
-    const margin = 30;
-    const gap = 24;
-    const slotW = Math.floor((width - margin * 2 - gap * 2) / 3);
+    const boardPadding = 32;
+    const gap = 28;
+    const slotW = Math.floor((width - boardPadding * 2 - gap * (cols - 1)) / cols);
     const slotH = Math.floor((slotW * 4) / 3);
-    const frameBorder = 10;
-    const innerGap = 10;
-    const height = margin * 2 + slotH * 3 + gap * 2;
+    const frameBorder = Math.max(10, Math.round(slotW * 0.04));
+    const innerGap = frameBorder;
+    const height = boardPadding * 2 + slotH * rows + gap * (rows - 1);
 
     out.width = width;
     out.height = height;
@@ -267,10 +270,10 @@ function buildNineCutBlob() {
 
     Promise.all(drawPromises).then((images) => {
       images.forEach((image, idx) => {
-        const row = Math.floor(idx / 3);
-        const col = idx % 3;
-        const x = margin + col * (slotW + gap);
-        const y = margin + row * (slotH + gap);
+        const row = Math.floor(idx / cols);
+        const col = idx % cols;
+        const x = boardPadding + col * (slotW + gap);
+        const y = boardPadding + row * (slotH + gap);
 
         ctx.fillStyle = "#f2f2f2";
         ctx.fillRect(x, y, slotW, slotH);
@@ -280,6 +283,7 @@ function buildNineCutBlob() {
         ctx.clip();
         drawImageCover(ctx, image, x + innerGap, y + innerGap, slotW - innerGap * 2, slotH - innerGap * 2);
         ctx.restore();
+
         ctx.strokeStyle = "#000";
         ctx.lineWidth = frameBorder;
         ctx.strokeRect(x + frameBorder * 0.5, y + frameBorder * 0.5, slotW - frameBorder, slotH - frameBorder);
@@ -292,7 +296,7 @@ function buildNineCutBlob() {
 }
 
 function triggerDownload(blob) {
-  const filename = `nine-cut-${Date.now()}.jpg`;
+  const filename = `film-booth-${Date.now()}.jpg`;
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -309,7 +313,7 @@ async function downloadResult() {
     return;
   }
 
-  const file = new File([blob], `nine-cut-${Date.now()}.jpg`, { type: "image/jpeg" });
+  const file = new File([blob], `film-booth-${Date.now()}.jpg`, { type: "image/jpeg" });
 
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
