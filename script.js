@@ -59,26 +59,25 @@ function drawImageCover(ctx, image, x, y, targetW, targetH) {
 
 function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder) {
   const label = "MONO FILM 2603";
+  const fontSize = Math.max(12, Math.round(slotW * 0.03));
+  const topPadding = Math.max(6, Math.round(frameBorder * 0.7));
+  const sideOffset = Math.max(2, Math.round(frameBorder * 0.55));
+
   ctx.save();
   ctx.fillStyle = "#d4bb7d";
-  const fontSize = Math.max(12, Math.round(slotW * 0.03));
   ctx.font = `700 ${fontSize}px sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  const leftX = x + frameBorder * 0.5;
-  const rightX = x + slotW - frameBorder * 0.5;
-  const centerY = y + slotH * 0.5;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
 
   ctx.save();
-  ctx.translate(leftX, centerY);
-  ctx.rotate(-Math.PI / 2);
+  ctx.translate(x + sideOffset, y + topPadding);
+  ctx.rotate(Math.PI / 2);
   ctx.fillText(label, 0, 0);
   ctx.restore();
 
   ctx.save();
-  ctx.translate(rightX, centerY);
-  ctx.rotate(Math.PI / 2);
+  ctx.translate(x + slotW - sideOffset, y + slotH - topPadding);
+  ctx.rotate(-Math.PI / 2);
   ctx.fillText(label, 0, 0);
   ctx.restore();
 
@@ -277,11 +276,17 @@ function buildNineCutBlob() {
 
         ctx.fillStyle = "#f2f2f2";
         ctx.fillRect(x, y, slotW, slotH);
+        const imageInset = frameBorder + innerGap;
+        const imageX = x + imageInset;
+        const imageY = y + imageInset;
+        const imageW = slotW - imageInset * 2;
+        const imageH = slotH - imageInset * 2;
+
         ctx.save();
         ctx.beginPath();
-        ctx.rect(x + innerGap, y + innerGap, slotW - innerGap * 2, slotH - innerGap * 2);
+        ctx.rect(imageX, imageY, imageW, imageH);
         ctx.clip();
-        drawImageCover(ctx, image, x + innerGap, y + innerGap, slotW - innerGap * 2, slotH - innerGap * 2);
+        drawImageCover(ctx, image, imageX, imageY, imageW, imageH);
         ctx.restore();
 
         ctx.strokeStyle = "#000";
