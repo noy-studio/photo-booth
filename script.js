@@ -26,6 +26,37 @@ const setStatus = (message) => {
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+function forceGrayscale(ctx, width, height) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const { data } = imageData;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const gray = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+    data[i] = gray;
+    data[i + 1] = gray;
+    data[i + 2] = gray;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function drawImageCover(ctx, image, x, y, targetW, targetH) {
+  const sourceW = image.naturalWidth || image.videoWidth || image.width;
+  const sourceH = image.naturalHeight || image.videoHeight || image.height;
+
+  if (!sourceW || !sourceH) {
+    return;
+  }
+
+  const scale = Math.max(targetW / sourceW, targetH / sourceH);
+  const drawW = sourceW * scale;
+  const drawH = sourceH * scale;
+  const drawX = x + (targetW - drawW) / 2;
+  const drawY = y + (targetH - drawH) / 2;
+
+  ctx.drawImage(image, drawX, drawY, drawW, drawH);
+}
+
 function refreshButtons() {
   retakeBtn.disabled = isShooting || capturedImages.length === 0;
   downloadBtn.disabled = capturedImages.length !== SLOT_COUNT;
@@ -70,9 +101,10 @@ function captureCurrentFrame() {
   ctx.save();
   ctx.translate(width, 0);
   ctx.scale(-1, 1);
-  ctx.filter = "grayscale(1) contrast(1.12)";
   ctx.drawImage(preview, 0, 0, width, height);
   ctx.restore();
+
+  forceGrayscale(ctx, width, height);
 
   return canvas.toDataURL("image/jpeg", 0.95);
 }
@@ -213,7 +245,12 @@ function buildNineCutBlob() {
 
         ctx.fillStyle = "#f2f2f2";
         ctx.fillRect(x, y, slotW, slotH);
-        ctx.drawImage(image, x + 10, y + 10, slotW - 20, slotH - 20);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x + 10, y + 10, slotW - 20, slotH - 20);
+        ctx.clip();
+        drawImageCover(ctx, image, x + 10, y + 10, slotW - 20, slotH - 20);
+        ctx.restore();
         ctx.strokeStyle = "#000";
         ctx.lineWidth = 8;
         ctx.strokeRect(x + 2, y + 2, slotW - 4, slotH - 4);
