@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Film Photo Booth</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="top">
+        <h1>📸 Film Photo Booth</h1>
+        <p class="subtitle">Please press Start Camera to get ready.</p>
+      </header>
+
+      <section class="controls">
+        <button id="startCameraBtn" class="primary">Start Camera</button>
+        <button id="startSessionBtn" disabled>Start 8 Shots</button>
+        <button id="retakeBtn" disabled>Undo Last Shot</button>
+        <button id="downloadBtn" disabled>Save Result</button>
+      </section>
+
+      <section class="film-board-wrap">
+        <div id="countdown" class="countdown hidden">
+          <div id="countdownNumber" class="countdown-number">3</div>
+          <button id="pauseBtn" class="countdown-pause" disabled>Pause</button>
+        </div>
+        <div id="filmBoard" class="film-board">
+          <div class="frame-slot" data-index="0">1</div>
+          <div class="frame-slot" data-index="1">2</div>
+          <div class="frame-slot" data-index="2">3</div>
+          <div class="frame-slot" data-index="3">4</div>
+          <div class="frame-slot" data-index="4">5</div>
+          <div class="frame-slot" data-index="5">6</div>
+          <div class="frame-slot" data-index="6">7</div>
+          <div class="frame-slot" data-index="7">8</div>
+        </div>
+      </section>
+
+      <p id="status" class="status" aria-live="polite"></p>
+
+      <video id="preview" autoplay playsinline muted class="hidden-video"></video>
+      <canvas id="captureCanvas" class="hidden"></canvas>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
