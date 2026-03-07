@@ -57,11 +57,11 @@ function drawImageCover(ctx, image, x, y, targetW, targetH) {
   ctx.drawImage(image, drawX, drawY, drawW, drawH);
 }
 
-function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder) {
+function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder, scale) {
   const label = "MONO FILM 2603";
-  const fontSize = Math.max(12, Math.round(slotW * 0.03));
-  const topPadding = Math.max(6, Math.round(frameBorder * 0.7));
-  const sideOffset = Math.max(2, Math.round(frameBorder * 0.55));
+  const topOffset = 7 * scale;
+  const sideInset = 1 * scale;
+  const fontSize = Math.max(12 * scale, Math.round(slotW * 0.03));
 
   ctx.save();
   ctx.fillStyle = "#d4bb7d";
@@ -70,13 +70,13 @@ function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder) {
   ctx.textBaseline = "top";
 
   ctx.save();
-  ctx.translate(x + sideOffset, y + topPadding);
+  ctx.translate(x + sideInset, y + topOffset);
   ctx.rotate(Math.PI / 2);
   ctx.fillText(label, 0, 0);
   ctx.restore();
 
   ctx.save();
-  ctx.translate(x + slotW - sideOffset, y + slotH - topPadding);
+  ctx.translate(x + slotW - sideInset, y + slotH - topOffset);
   ctx.rotate(-Math.PI / 2);
   ctx.fillText(label, 0, 0);
   ctx.restore();
@@ -239,24 +239,26 @@ function buildNineCutBlob() {
       return;
     }
 
-    const out = document.createElement("canvas");
-    const cols = 3;
-    const rows = Math.ceil(SLOT_COUNT / cols);
-    const width = 1200;
-    const boardPadding = 32;
-    const gap = 28;
-    const slotW = Math.floor((width - boardPadding * 2 - gap * (cols - 1)) / cols);
-    const slotH = Math.floor((slotW * 4) / 3);
-    const frameBorder = Math.max(10, Math.round(slotW * 0.04));
-    const innerGap = frameBorder;
-    const height = boardPadding * 2 + slotH * rows + gap * (rows - 1);
+    const boardRect = boardEl.getBoundingClientRect();
+    const slotRects = Array.from(boardEl.querySelectorAll(".frame-slot")).map((slot) => slot.getBoundingClientRect());
 
-    out.width = width;
-    out.height = height;
+    if (!boardRect.width || !boardRect.height || slotRects.length !== SLOT_COUNT) {
+      resolve(null);
+      return;
+    }
+
+    const rootStyle = getComputedStyle(document.documentElement);
+    const frameBorderCss = Number.parseFloat(rootStyle.getPropertyValue("--frame-border")) || 10;
+    const innerGapCss = Number.parseFloat(rootStyle.getPropertyValue("--inner-gap")) || 10;
+    const scale = 3;
+
+    const out = document.createElement("canvas");
+    out.width = Math.round(boardRect.width * scale);
+    out.height = Math.round(boardRect.height * scale);
 
     const ctx = out.getContext("2d");
     ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, out.width, out.height);
 
     const drawPromises = capturedImages.map(
       (src) =>
@@ -269,13 +271,17 @@ function buildNineCutBlob() {
 
     Promise.all(drawPromises).then((images) => {
       images.forEach((image, idx) => {
-        const row = Math.floor(idx / cols);
-        const col = idx % cols;
-        const x = boardPadding + col * (slotW + gap);
-        const y = boardPadding + row * (slotH + gap);
+        const rect = slotRects[idx];
+        const x = Math.round((rect.left - boardRect.left) * scale);
+        const y = Math.round((rect.top - boardRect.top) * scale);
+        const slotW = Math.round(rect.width * scale);
+        const slotH = Math.round(rect.height * scale);
+        const frameBorder = Math.round(frameBorderCss * scale);
+        const innerGap = Math.round(innerGapCss * scale);
 
-        ctx.fillStyle = "#f2f2f2";
+        ctx.fillStyle = "#f1f1f1";
         ctx.fillRect(x, y, slotW, slotH);
+
         const imageInset = frameBorder + innerGap;
         const imageX = x + imageInset;
         const imageY = y + imageInset;
@@ -292,7 +298,7 @@ function buildNineCutBlob() {
         ctx.strokeStyle = "#000";
         ctx.lineWidth = frameBorder;
         ctx.strokeRect(x + frameBorder * 0.5, y + frameBorder * 0.5, slotW - frameBorder, slotH - frameBorder);
-        drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder);
+        drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder, scale);
       });
 
       out.toBlob((blob) => resolve(blob), "image/jpeg", 0.95);
