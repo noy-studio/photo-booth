@@ -57,32 +57,27 @@ function drawImageCover(ctx, image, x, y, targetW, targetH) {
   ctx.drawImage(image, drawX, drawY, drawW, drawH);
 }
 
-function parsePx(value, fallback = 0) {
-  const n = Number.parseFloat(value);
-  return Number.isFinite(n) ? n : fallback;
-}
-
-function drawFilmEdgeText(ctx, x, y, slotW, slotH, pseudoMetrics, scale) {
-  const label = pseudoMetrics.content || "MONO FILM 2603";
-  const fontSize = Math.max(1, pseudoMetrics.fontSize * scale);
-  const top = pseudoMetrics.top * scale;
-  const left = pseudoMetrics.left * scale;
-  const right = pseudoMetrics.right * scale;
+function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder) {
+  const label = "MONO FILM 2603";
+  const fontSize = Math.max(10, Math.round(frameBorder * 0.72));
+  const sideInset = Math.max(2, Math.round(frameBorder * 0.2));
+  const topInset = Math.max(4, Math.round(frameBorder * 0.6));
+  const bottomInset = Math.max(4, Math.round(frameBorder * 0.6));
 
   ctx.save();
-  ctx.fillStyle = pseudoMetrics.color;
+  ctx.fillStyle = "#d4bb7d";
   ctx.font = `700 ${fontSize}px sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
 
   ctx.save();
-  ctx.translate(x + left, y + top);
+  ctx.translate(x + sideInset, y + topInset);
   ctx.rotate(Math.PI / 2);
   ctx.fillText(label, 0, 0);
   ctx.restore();
 
   ctx.save();
-  ctx.translate(x + slotW - right, y + slotH - top);
+  ctx.translate(x + slotW - sideInset, y + slotH - bottomInset);
   ctx.rotate(-Math.PI / 2);
   ctx.fillText(label, 0, 0);
   ctx.restore();
@@ -256,17 +251,6 @@ function buildNineCutBlob() {
     const rootStyle = getComputedStyle(document.documentElement);
     const frameBorderCss = Number.parseFloat(rootStyle.getPropertyValue("--frame-border")) || 10;
     const innerGapCss = Number.parseFloat(rootStyle.getPropertyValue("--inner-gap")) || 10;
-    const firstSlot = boardEl.querySelector(".frame-slot");
-    const beforeStyle = firstSlot ? getComputedStyle(firstSlot, "::before") : null;
-    const afterStyle = firstSlot ? getComputedStyle(firstSlot, "::after") : null;
-    const pseudoMetrics = {
-      top: beforeStyle ? parsePx(beforeStyle.top, 7) : 7,
-      left: beforeStyle ? parsePx(beforeStyle.left, -frameBorderCss + 1) : -frameBorderCss + 1,
-      right: afterStyle ? parsePx(afterStyle.right, -frameBorderCss + 1) : -frameBorderCss + 1,
-      fontSize: beforeStyle ? parsePx(beforeStyle.fontSize, 8) : 8,
-      color: beforeStyle?.color || "#d4bb7d",
-      content: beforeStyle?.content ? beforeStyle.content.replace(/^["']|["']$/g, "") : "MONO FILM 2603",
-    };
     const scale = 3;
 
     const out = document.createElement("canvas");
@@ -315,7 +299,7 @@ function buildNineCutBlob() {
         ctx.strokeStyle = "#000";
         ctx.lineWidth = frameBorder;
         ctx.strokeRect(x + frameBorder * 0.5, y + frameBorder * 0.5, slotW - frameBorder, slotH - frameBorder);
-        drawFilmEdgeText(ctx, x, y, slotW, slotH, pseudoMetrics, scale);
+        drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder);
       });
 
       out.toBlob((blob) => resolve(blob), "image/jpeg", 0.95);

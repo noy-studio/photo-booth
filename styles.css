@@ -109,18 +109,25 @@ button:disabled { opacity: 0.45; }
   z-index: 4;
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 0.5rem;
-  letter-spacing: 0.06em;
+  font-size: clamp(0.32rem, calc(var(--frame-border) * 0.072), 0.5rem);
+  letter-spacing: 0.04em;
   color: #d4bb7d;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.6);
-  top: 7px;
-  bottom: 7px;
   content: "MONO FILM 2603";
   pointer-events: none;
 }
 
-.frame-slot::before { left: calc(var(--frame-border) * -1 + 1px); }
-.frame-slot::after { right: calc(var(--frame-border) * -1 + 1px); transform: rotate(180deg); }
+.frame-slot::before {
+  left: 2px;
+  top: 6px;
+}
+
+.frame-slot::after {
+  right: 2px;
+  bottom: 6px;
+  top: auto;
+  transform: rotate(180deg);
+}
 
 .frame-slot img,
 .frame-slot .live-preview {
@@ -151,6 +158,4 @@ button:disabled { opacity: 0.45; }
   button { font-size: 0.77rem; padding: 0.56rem 0.45rem; }
   .status { font-size: 0.73rem; margin-top: 0.5rem; }
   .film-board { gap: 0.45rem; padding: 0.5rem; }
-  .frame-slot::before,
-  .frame-slot::after { font-size: 0.4rem; }
 }
