@@ -1,0 +1,135 @@
+:root {
+  --bg: #0d0d0f;
+  --text: #f2f2f2;
+  --muted: #a4a4a4;
+  --green: #166534;
+  --frame-border: 10px;
+  --inner-gap: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  background: radial-gradient(circle at top, #1a1a22 0, var(--bg) 60%);
+  color: var(--text);
+  min-height: 100svh;
+}
+
+.app {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 0.9rem;
+}
+
+.top h1 { margin: 0; font-size: 1.3rem; }
+.subtitle { margin: 0.35rem 0 0.75rem; color: var(--muted); font-size: 0.92rem; }
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.68rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--green);
+}
+
+button:disabled { opacity: 0.45; }
+
+.status {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  min-height: 1.2rem;
+  font-size: 0.82rem;
+}
+
+.film-board-wrap { position: relative; margin-top: 0.6rem; }
+
+.countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 12px;
+}
+
+.countdown-number {
+  font-size: clamp(3rem, 12vw, 5rem);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.countdown-pause {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(22, 101, 52, 0.96);
+}
+
+.film-board {
+  background: #000;
+  border-radius: 12px;
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.frame-slot {
+  position: relative;
+  aspect-ratio: 3/4;
+  background: #f1f1f1;
+  border: var(--frame-border) solid #000;
+  color: #9f9f9f;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.frame-slot img,
+.frame-slot .live-preview {
+  position: absolute;
+  inset: var(--inner-gap);
+  width: calc(100% - var(--inner-gap) * 2);
+  height: calc(100% - var(--inner-gap) * 2);
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05);
+  z-index: 2;
+}
+
+.frame-slot .live-preview { transform: scaleX(-1); }
+
+.hidden,
+.hidden-video { display: none !important; }
+
+@media (max-width: 430px) {
+  :root {
+    --frame-border: 7px;
+    --inner-gap: 7px;
+  }
+
+  .app { padding: 0.62rem; }
+  .top h1 { font-size: 1.03rem; }
+  .subtitle { font-size: 0.76rem; margin-bottom: 0.5rem; }
+  .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  button { font-size: 0.77rem; padding: 0.56rem 0.45rem; }
+  .status { font-size: 0.73rem; margin-top: 0.5rem; }
+  .film-board { gap: 0.45rem; padding: 0.5rem; }
+}
