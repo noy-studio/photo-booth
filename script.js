@@ -57,34 +57,6 @@ function drawImageCover(ctx, image, x, y, targetW, targetH) {
   ctx.drawImage(image, drawX, drawY, drawW, drawH);
 }
 
-function drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder) {
-  const label = "MONO FILM 2603";
-  const fontSize = Math.max(10, Math.round(frameBorder * 0.72));
-  const sideInset = Math.max(2, Math.round(frameBorder * 0.2));
-  const topInset = Math.max(4, Math.round(frameBorder * 0.6));
-  const bottomInset = Math.max(4, Math.round(frameBorder * 0.6));
-
-  ctx.save();
-  ctx.fillStyle = "#d4bb7d";
-  ctx.font = `700 ${fontSize}px sans-serif`;
-  ctx.textAlign = "left";
-  ctx.textBaseline = "top";
-
-  ctx.save();
-  ctx.translate(x + sideInset, y + topInset);
-  ctx.rotate(Math.PI / 2);
-  ctx.fillText(label, 0, 0);
-  ctx.restore();
-
-  ctx.save();
-  ctx.translate(x + slotW - sideInset, y + slotH - bottomInset);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText(label, 0, 0);
-  ctx.restore();
-
-  ctx.restore();
-}
-
 function refreshButtons() {
   retakeBtn.disabled = isShooting || capturedImages.length === 0;
   downloadBtn.disabled = capturedImages.length !== SLOT_COUNT;
@@ -299,7 +271,6 @@ function buildNineCutBlob() {
         ctx.strokeStyle = "#000";
         ctx.lineWidth = frameBorder;
         ctx.strokeRect(x + frameBorder * 0.5, y + frameBorder * 0.5, slotW - frameBorder, slotH - frameBorder);
-        drawFilmEdgeText(ctx, x, y, slotW, slotH, frameBorder);
       });
 
       out.toBlob((blob) => resolve(blob), "image/jpeg", 0.95);

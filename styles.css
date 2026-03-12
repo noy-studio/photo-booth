@@ -103,32 +103,6 @@ button:disabled { opacity: 0.45; }
   overflow: visible;
 }
 
-.frame-slot::before,
-.frame-slot::after {
-  position: absolute;
-  z-index: 4;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-size: clamp(0.32rem, calc(var(--frame-border) * 0.072), 0.5rem);
-  letter-spacing: 0.04em;
-  color: #d4bb7d;
-  text-shadow: 0 0 1px rgba(0, 0, 0, 0.6);
-  content: "MONO FILM 2603";
-  pointer-events: none;
-}
-
-.frame-slot::before {
-  left: 2px;
-  top: 6px;
-}
-
-.frame-slot::after {
-  right: 2px;
-  bottom: 6px;
-  top: auto;
-  transform: rotate(180deg);
-}
-
 .frame-slot img,
 .frame-slot .live-preview {
   position: absolute;
